@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=alist
-PKG_VERSION:=3.19.0
-PKG_RELEASE:=2
+PKG_VERSION:=3.28.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/alist-org/alist/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=77080f88dc789253c46efaf7adc141a9d7250d477653db7270941b35d14f82ab
+PKG_HASH:=7944c1ac07c5cad71e84f6087fba1bc28dd552b220f479bc38369455e38d93d4
 
 PKG_LICENSE:=AGPL-3.0-only
 PKG_LICENSE_FILES:=LICENSE
@@ -18,7 +18,7 @@ PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
-PKG_USE_MIPS16:=0
+PKG_BUILD_FLAGS:=no-mips16
 
 GO_PKG:=github.com/alist-org/alist/v3
 GO_PKG_LDFLAGS_X:= \
@@ -47,7 +47,7 @@ define Download/alist-web
 	URL:=https://github.com/alist-org/alist-web/releases/download/$(WEB_VERSION)/
 	URL_FILE:=dist.tar.gz
 	FILE:=$(WEB_FILE)
-	HASH:=5f8d00dc2b805e69630e5f00878bd45571f19250675738348fef274a2d9e8d9d
+	HASH:=62f7163f4651762d92da84d4eec51f4246cdb4841c1e7082ad0da1cacb0c2a00
 endef
 
 define Build/Prepare
@@ -58,6 +58,10 @@ define Build/Prepare
 		gzip -dc $(DL_DIR)/$(WEB_FILE) | $(HOST_TAR) -C $(PKG_BUILD_DIR)/public $(TAR_OPTIONS) ; \
 	)
 endef
+
+ifneq ($(CONFIG_USE_MUSL),)
+  TARGET_CFLAGS += -D_LARGEFILE64_SOURCE
+endif
 
 define Package/alist/install
 	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
